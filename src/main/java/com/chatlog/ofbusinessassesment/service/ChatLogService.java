@@ -1,5 +1,6 @@
 package com.chatlog.ofbusinessassesment.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.chatlog.ofbusinessassesment.entity.ChatLogEntity;
@@ -45,12 +46,20 @@ public class ChatLogService {
         }
     }
 
-    public List<ChatLogEntity> getAllChatLogs(String user, Long start, Integer limit) {
-        log.info("Fetching all chat logs for user: {} with starting message id: {} and limit: {}", user, start, limit);
-        if (start == null) {
-            return List.of(chatLogRepository.findFirstByUserOrderByTimestampDesc(user).get());
+    public List<ChatLogEntity> getAllChatLogs(String user, Long start, Integer limit, Integer sent) {
+        log.info("Fetching all chat logs for user: {} with starting message id: {} and limit: {}", user, limit, sent);
+        List<Integer> sentValues = new ArrayList<>();
+        if(sent == null) {
+            sentValues.add(0);
+            sentValues.add(1);
+        } else {
+            sentValues.add(sent);
         }
-        var response = chatLogRepository.findAllByUserAndMessageIdGreaterThanEqualOrderByTimestampDesc(user, start).get();
+        if (start == null) {
+            return List.of(chatLogRepository.findFirstByUserAndIsSentInOrderByTimestampDesc(user, sentValues).get());
+        }
+
+        var response = chatLogRepository.findAllByUserAndMessageIdGreaterThanEqualOrderByTimestampDesc(user, start, sentValues, limit).get();
         return response.subList(Math.max(response.size() - limit, 0), response.size());
     }
 

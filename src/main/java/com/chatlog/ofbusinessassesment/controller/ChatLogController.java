@@ -1,9 +1,13 @@
 package com.chatlog.ofbusinessassesment.controller;
 
+import java.util.Arrays;
+
 import com.chatlog.ofbusinessassesment.entity.CreateChatLogRequest;
 import com.chatlog.ofbusinessassesment.exception.MessageNotFoundException;
 import com.chatlog.ofbusinessassesment.exception.ValidationException;
 import com.chatlog.ofbusinessassesment.service.ChatLogService;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/chatlogs")
 @ControllerAdvice
+@Slf4j
 public class ChatLogController {
 
     @Autowired
@@ -31,17 +36,20 @@ public class ChatLogController {
         try {
             return ResponseEntity.ok().body(chatLogService.createChatLog(user, request));
         } catch (Exception e) {
+            log.error("Exception in post: {}, {}", e.getMessage(), Arrays.toString(e.getStackTrace()));
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
     @GetMapping(path = "/{user}")
     public ResponseEntity<?> getUserChatLogs(@PathVariable String user,
+                                             @RequestParam(name = "sent", required = false) Integer sent,
                                              @RequestParam(name = "start", required = false) Long start,
-                                             @RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit) {
+                                             @RequestParam(name = "limit", required = false, defaultValue = "10") Integer limit) {
         try {
-            return ResponseEntity.ok().body(chatLogService.getAllChatLogs(user, start, limit));
+            return ResponseEntity.ok().body(chatLogService.getAllChatLogs(user, start, limit, sent));
         } catch (Exception e) {
+            log.error("Exception in get: {}, {}", e.getMessage(), Arrays.toString(e.getStackTrace()));
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

@@ -58,9 +58,9 @@ class ChatLogServiceTest {
 
     @Test
     void getAllChatLogsTest() {
-        when(chatLogRepository.findAllByUserAndMessageIdGreaterThanEqualOrderByTimestampDesc(any(), any()))
+        when(chatLogRepository.findAllByUserAndMessageIdGreaterThanEqualOrderByTimestampDesc(any(), any(), List.of(0), 1))
             .thenReturn(Optional.of(List.of(ChatLogEntity.builder().build())));
-        assertNotNull(chatLogService.getAllChatLogs("user", 1L, 1));
+        assertNotNull(chatLogService.getAllChatLogs("user", 1L, 1, 1));
     }
 
     @Test
